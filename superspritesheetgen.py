@@ -16,7 +16,6 @@ filetype = ("*" + opath[-4:])
 print (filetype)
 
 imgfinal = Image.new("RGB", (tsize, tsize))
-#imgfinal.show()
 
 filenames = glob.glob(filetype)
 filenames.sort()
@@ -34,12 +33,8 @@ for filename in filenames:
     print (filename)
     imgcopy = img.copy()
     imgcopy = imgcopy.resize((fsize,fsize))
-    print (xmod)
-    print (ymod)
     xoffset = xmod * fsize
     yoffset = ymod * fsize
-    #print (xoffset)
-    #print (yoffset)
     imgfinal.paste(imgcopy, ((xoffset),(yoffset)))
     #print ("I am actually working this time.")
     loop = loop + 1
@@ -48,9 +43,3 @@ for filename in filenames:
     xmod = int(loop % gsize)
 
 imgfinal.show()
-
-#time.sleep(5)
-#print (imgcount)
-#print (gridsize)
-#print (fsize)
-#imgfinal.show()
