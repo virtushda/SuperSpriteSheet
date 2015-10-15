@@ -25,11 +25,6 @@ tsizex = int(tsize * h2wratio)
 filetype = ("*" + opath[-4:])
 print (filetype)
 
-<<<<<<< HEAD
-imgfinal = Image.new("RGB", (tsize, tsize))
-
-=======
->>>>>>> origin/master
 filenames = glob.glob(filetype)
 filenames.sort()
 
@@ -54,30 +49,37 @@ else:
 loop = 0
 xmod = 0
 ymod = 0
+e = 1
 
 for filename in filenames:
+    if e == 1:
+        print ("Working...")
+        e = 0
     img = Image.open(filename)
-    imgcopy = img.copy()
-<<<<<<< HEAD
-    imgcopy = imgcopy.resize((fsize,fsize))
-    xoffset = xmod * fsize
-    yoffset = ymod * fsize
-=======
-    imgcopy = imgcopy.resize((fsizex,fsizey))
+    img = img.resize((fsizex,fsizey))
     xoffset = xmod * fsizex
     yoffset = ymod * fsizey
->>>>>>> origin/master
-    imgfinal.paste(imgcopy, ((xoffset),(yoffset)))
+    imgfinal.paste(img, ((xoffset),(yoffset)))
     loop = loop + 1
+    #print (loop)
     if xmod == int((gsize - 1)):
         ymod = ymod + 1
     xmod = int(loop % gsize)
 
 imgfinal.resize((tsizex,tsize))
-imgfinal.show()
-<<<<<<< HEAD
-=======
-imgfinal.save("../ssresult.png", "png")
+print ("Done!")
+#imgfinal.show()
+
+save = easygui.indexbox(msg='Where would you like to save your spritesheet?', title='', choices=('User Defined', 'Parent Folder(default)', 'Same Folder(not recommended)'), image=None)
+
+if save == 0:
+    savepath = easygui.filesavebox()
+    if (savepath[-4:]) != (filetype[-4:]):
+        savepath = savepath + (filetype[-4:])
+    imgfinal.save(savepath, "png")
+if save == 1:
+    imgfinal.save("../sss_result.png", "png")
+if save == 2:
+    imgfinal.save("sss_result.png", "png")
 
 exit
->>>>>>> origin/master
