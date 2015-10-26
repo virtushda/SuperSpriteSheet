@@ -5,37 +5,75 @@ import math
 import glob
 import os
 import time
+import Tkinter
 
+print ("User Input Dialog Opened")
 opath = easygui.fileopenbox(title='Pick the first image in an image sequence!')
 test = Image.open(opath)
 imgw = float(test.width)
-print (imgw)
 imgh = float(test.height)
-print (imgh)
 h2wratio = float(imgw/imgh)
-print (h2wratio)
+print ("Width to Height Ratio: ", h2wratio)
+
+if h2wratio != 1:
+    print ("User Input Dialog Opened")
+    fixaspect = easygui.indexbox(msg='Your image is not square.', title='', choices=('Maintain(Rectangular Output)', 'Approximate(Square Output)'), image=None)
+    fix = 1
 
 opathdir = os.path.dirname(opath)
-print opathdir
 os.chdir(opathdir)
 
-tsize = easygui.integerbox(msg='Texture Size (Height)?', lowerbound=4, upperbound=99999)
-tsizex = int(tsize * h2wratio)
+print ("User Input Dialog Opened")
+tsize = easygui.integerbox(msg='Texture Size (Height)?', lowerbound=4, upperbound=33333)
+if fixaspect == 0:
+    tsizex = int(tsize * h2wratio)
+if fixaspect == 1:
+    tsizex = tsize
 
 filetype = ("*" + opath[-4:])
-print (filetype)
 
 filenames = glob.glob(filetype)
 filenames.sort()
 
-gsize = int(math.ceil(math.sqrt(len(filenames))))
-print (gsize)
-fsizex = int(h2wratio * (tsize/gsize))
-fsizey = int(tsize/gsize)
-xtsizex = gsize * fsizex
-print (xtsizex)
-xtsizey = gsize * fsizey
-print (xtsizey)
+if fixaspect == 0:
+    gsize = int(math.ceil(math.sqrt(len(filenames))))
+    gsizey = gsize
+if fixaspect == 1:
+    gsize = int(math.ceil(math.sqrt(len(filenames))))
+    gsizesq = gsize * gsize
+    if h2wratio > 1:
+        while fix == 1:
+            gsizey = gsize
+            gsizex = int(gsize/h2wratio)
+            gtotal = gsizex * gsizey
+            while gtotal < gsizesq:
+                if gsizey > (gsizex*h2wratio):
+                    gsizex = gsizex + 1
+                else:
+                    gsizey = gsizey + 1
+                gtotal = gsizey * gsizex
+            if (gtotal - len(filenames)) > gsizey:
+                gsizex = gsizex - 1
+            fix = 0
+    if h2wratio < 1:
+        while fix == 1:
+            gsizex = gsize
+            gsizey = int(gsize*h2wratio)
+            gtotal = gsizex * gsizey
+            while gtotal < gsizesq:
+                if gsizex > (gsizey/h2wratio):
+                    gsizey = gsizey + 1
+                else:
+                    gsizex = gsizex + 1
+                gtotal = gsizex * gsizey
+            if (gtotal - len(filenames)) > gsizex:
+                gsizey = gsizey - 1
+            fix = 0
+
+fsizex = tsize/gsizex
+fsizey = tsize/gsizey
+xtsizex = int(gsizex * fsizex)
+xtsizey = int(gsizey * fsizey)
 
 alpha = 0
 if test.mode == "RGBA": 
@@ -61,25 +99,30 @@ for filename in filenames:
     yoffset = ymod * fsizey
     imgfinal.paste(img, ((xoffset),(yoffset)))
     loop = loop + 1
-    #print (loop)
-    if xmod == int((gsize - 1)):
+    if xmod == int((gsizex - 1)):
         ymod = ymod + 1
-    xmod = int(loop % gsize)
+    xmod = int(loop % gsizex)
 
-imgfinal.resize((tsizex,tsize))
-print ("Done!")
-#imgfinal.show()
+imgfinal = imgfinal.resize((tsizex,tsize), resample=3)
+print ("SpriteSheet Assembled")
 
+print(tsizex,tsize)
+print ("User Input Dialog Opened")
 save = easygui.indexbox(msg='Where would you like to save your spritesheet?', title='', choices=('User Defined', 'Parent Folder(default)', 'Same Folder(not recommended)'), image=None)
 
 if save == 0:
     savepath = easygui.filesavebox()
     if (savepath[-4:]) != (filetype[-4:]):
         savepath = savepath + (filetype[-4:])
+    print ("Saving SpriteSheet...")
     imgfinal.save(savepath, "png")
 if save == 1:
+    print ("Saving SpriteSheet...")
     imgfinal.save("../sss_result.png", "png")
 if save == 2:
+    print ("Saving SpriteSheet...")
     imgfinal.save("sss_result.png", "png")
+
+print ("All done.")
 
 exit
